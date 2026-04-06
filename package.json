@@ -1,0 +1,36 @@
+{
+  "name": "setupcraft",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Auto development environment setup CLI — from zero to coding in minutes",
+  "main": "src/index.js",
+  "bin": {
+    "setupcraft": "./bin/cli.js"
+  },
+  "scripts": {
+    "dev": "node bin/cli.js",
+    "test": "vitest",
+    "lint": "eslint src/**/*.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbhishekS04/setupcraft.git"
+  },
+  "author": "AbhishekS04",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AbhishekS04/setupcraft/issues"
+  },
+  "homepage": "https://github.com/AbhishekS04/setupcraft#readme",
+  "dependencies": {
+    "@clack/prompts": "^0.9.1",
+    "chalk": "^5.3.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "eslint": "^8.0.0"
+  }
+}
