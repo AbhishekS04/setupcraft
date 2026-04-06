@@ -50,13 +50,16 @@ export async function runInstall(selections, args, osInfo) {
     installDocker:   'docker',
     installCliTools: 'cli-tools',
     installNode:     'nodejs',
+    installPython:   'python',
   };
 
   for (const [key, toolName] of Object.entries(toolMap)) {
     if (selections[key]) {
       const script = path.join(SCRIPTS_DIR, 'tools', `${toolName}${ext}`);
+      // Pass nodeManager as first arg so nodejs.sh knows which manager to use
+      const scriptArgs = toolName === 'nodejs' ? [selections.nodeManager ?? 'none'] : [];
       try {
-        await runScript(script, [], args.dryRun);
+        await runScript(script, scriptArgs, args.dryRun);
       } catch (e) {
         logger.error(`Failed to install ${toolName}: ${e.message}`);
       }
@@ -71,6 +74,44 @@ export async function runInstall(selections, args, osInfo) {
     } catch (e) {
       logger.error(`Failed to install optional tool ${tool}: ${e.message}`);
     }
+  }
+
+  // Configure shell aliases / prompt
+  if (selections.configureShell && osInfo.os !== 'windows') {
+    await applyShellConfig(args.dryRun);
+  }
+}
+
+async function applyShellConfig(dryRun) {
+  const { readFileSync, existsSync, appendFileSync } = await import('fs');
+  const { homedir } = await import('os');
+
+  const blockPath = path.join(__dirname, '..', 'config', 'shell-block.sh');
+  if (!existsSync(blockPath)) {
+    logger.warn('shell-block.sh not found — skipping shell configuration');
+    return;
+  }
+
+  const block = readFileSync(blockPath, 'utf8');
+  const marker = '# === Setupcraft managed block';
+
+  for (const rc of ['.bashrc', '.zshrc']) {
+    const rcPath = path.join(homedir(), rc);
+    if (!existsSync(rcPath)) continue;
+
+    const existing = readFileSync(rcPath, 'utf8');
+    if (existing.includes(marker)) {
+      logger.info(`${rc}: shell block already present — skipping`);
+      continue;
+    }
+
+    if (dryRun) {
+      logger.info(`[dry-run] Would append shell config to ~/${rc}`);
+      continue;
+    }
+
+    appendFileSync(rcPath, `\n${block}\n`);
+    logger.success(`Shell config appended to ~/${rc}`);
   }
 }
 

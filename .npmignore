@@ -1,0 +1,12 @@
+tests/
+.github/
+*.test.js
+.eslintrc
+.eslintrc.js
+.eslintrc.cjs
+.eslintrc.yaml
+.eslintrc.yml
+eslint.config.js
+.env
+.env.*
+*.log

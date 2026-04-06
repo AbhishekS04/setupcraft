@@ -6,9 +6,20 @@ import { runPrompts } from './prompts.js';
 import { runInstall } from './runner.js';
 import { verify }     from './verify.js';
 import { summary }    from './summary.js';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export async function main() {
   const args = parseArgs();
+
+  if (args.version) {
+    const pkg = JSON.parse(readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
+    console.log(`setupcraft v${pkg.version}`);
+    process.exit(0);
+  }
 
   if (args.help) {
     console.log(`
@@ -24,6 +35,7 @@ export async function main() {
     `);
     process.exit(0);
   }
+
 
   const osInfo = detectOS();
   logger.step(`Detected: ${osInfo.os} / ${osInfo.distro} (${osInfo.arch})`);

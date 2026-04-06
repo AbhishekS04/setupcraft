@@ -1,0 +1,10 @@
+{
+  "nodeManager": "asdf",
+  "installDocker": true,
+  "installGit": true,
+  "installNode": true,
+  "installPython": true,
+  "installCliTools": true,
+  "optionalTools": [],
+  "configureShell": true
+}

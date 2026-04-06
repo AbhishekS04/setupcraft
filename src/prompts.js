@@ -10,6 +10,7 @@ export async function runPrompts(args, osInfo) {
       installDocker: true,
       installGit: true,
       installNode: true,
+      installPython: true,
       installCliTools: true,
       optionalTools: [],
       configureShell: true,
@@ -33,6 +34,7 @@ export async function runPrompts(args, osInfo) {
     options: [
       { value: 'docker',    label: 'Docker',     hint: 'Container runtime',      initialValue: true },
       { value: 'git',       label: 'Git',        hint: 'Version control',        initialValue: true },
+      { value: 'python',    label: 'Python 3',   hint: 'python3 + pip + venv',   initialValue: true },
       { value: 'cli-tools', label: 'CLI Tools',  hint: 'fzf, ripgrep, bat, jq', initialValue: true },
     ],
     required: false,
@@ -65,6 +67,7 @@ export async function runPrompts(args, osInfo) {
     nodeManager,
     installDocker:   coreTools.includes('docker'),
     installGit:      coreTools.includes('git'),
+    installPython:   coreTools.includes('python'),
     installCliTools: coreTools.includes('cli-tools'),
     optionalTools,
     configureShell,
