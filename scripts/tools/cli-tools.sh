@@ -7,8 +7,10 @@ if command -v dnf &>/dev/null; then
   sudo dnf install -y fzf ripgrep fd-find bat jq
 
   # GitHub CLI
-  sudo dnf config-manager addrepo \
-    --from-repofile=https://cli.github.com/packages/rpm/gh-cli.repo
+  if [ ! -f /etc/yum.repos.d/gh-cli.repo ]; then
+    sudo dnf config-manager addrepo \
+      --from-repofile=https://cli.github.com/packages/rpm/gh-cli.repo
+  fi
   sudo dnf install -y gh
 
 elif command -v apt &>/dev/null; then

@@ -1,11 +1,11 @@
 {
-  "name": "setupcraft",
-  "version": "1.0.0",
+  "name": "setupcraftt",
+  "version": "1.0.1",
   "type": "module",
   "description": "Auto development environment setup CLI — from zero to coding in minutes",
   "main": "src/index.js",
   "bin": {
-    "setupcraft": "bin/cli.js"
+    "setupcraftt": "bin/cli.js"
   },
   "scripts": {
     "dev": "node bin/cli.js",
