@@ -31,6 +31,10 @@ program
 program
   .command('ui', { isDefault: true })
   .description('Launch the interactive CLI dashboard')
+  .option('--non-interactive', 'Run without prompts, use defaults')
+  .option('--dry-run', 'Show what would happen without doing it')
+  .option('--quiet', 'Errors only')
+  .option('--debug', 'Show all commands')
   .action(() => {
     displayHeader();
     main().catch((err) => {
