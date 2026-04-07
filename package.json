@@ -1,6 +1,6 @@
 {
   "name": "setupcraftt",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "type": "module",
   "description": "Auto development environment setup CLI — from zero to coding in minutes",
   "main": "src/index.js",
@@ -29,10 +29,15 @@
   "homepage": "https://github.com/AbhishekS04/setupcraft#readme",
   "dependencies": {
     "@clack/prompts": "^0.9.1",
-    "chalk": "^5.3.0"
+    "chalk": "^5.3.0",
+    "commander": "^14.0.3",
+    "conf": "^15.1.0",
+    "execa": "^9.6.1",
+    "figlet": "^1.11.0",
+    "ora": "^9.3.0"
   },
   "devDependencies": {
-    "vitest": "^1.0.0",
-    "eslint": "^8.0.0"
+    "eslint": "^8.0.0",
+    "vitest": "^1.0.0"
   }
 }
