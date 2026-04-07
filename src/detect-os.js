@@ -18,7 +18,7 @@ export function detectOS() {
       if (id === 'opensuse' || id?.includes('suse'))return { os: 'linux', distro: 'opensuse',arch: os.arch() };
       if (['ubuntu','debian','pop','linuxmint'].includes(id) || idLike.includes('debian'))
                                                     return { os: 'linux', distro: 'ubuntu',  arch: os.arch() };
-    } catch {}
+    } catch { /* ignore */ }
     return { os: 'linux', distro: 'unknown', arch: os.arch() };
   }
 

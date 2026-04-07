@@ -1,7 +1,7 @@
 import * as p from '@clack/prompts';
 import { logger } from './logger.js';
 
-export async function runPrompts(args, osInfo) {
+export async function runPrompts(args) {
   // Skip prompts in non-interactive mode — return defaults
   if (args.nonInteractive) {
     logger.info('Non-interactive mode — using default selections');

@@ -42,7 +42,7 @@ export async function main() {
 
   await preflight(args, osInfo);
 
-  const selections = await runPrompts(args, osInfo);
+  const selections = await runPrompts(args);
 
   await runInstall(selections, args, osInfo);
 

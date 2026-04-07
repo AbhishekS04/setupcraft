@@ -4,16 +4,25 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// We test runScript behavior by mocking child_process.spawn
-vi.mock('child_process', async (importOriginal) => {
-  const actual = await importOriginal();
+// Mock execa and ora for the new stealth execution structure
+vi.mock('execa', () => {
   return {
-    ...actual,
-    spawn: vi.fn(),
+    execa: vi.fn(),
   };
 });
 
-import { spawn } from 'child_process';
+vi.mock('ora', () => {
+  const mockOra = {
+    start: vi.fn().mockReturnThis(),
+    succeed: vi.fn(),
+    fail: vi.fn(),
+  };
+  return {
+    default: vi.fn(() => mockOra),
+  };
+});
+
+import { execa } from 'execa';
 import { runScript } from '../src/runner.js';
 
 describe('runScript', () => {
@@ -21,56 +30,46 @@ describe('runScript', () => {
     vi.clearAllMocks();
   });
 
-  it('resolves immediately in dry-run mode without spawning', async () => {
+  it('resolves immediately in dry-run mode without executing', async () => {
     await runScript('/fake/path/script.sh', [], true);
-    expect(spawn).not.toHaveBeenCalled();
+    expect(execa).not.toHaveBeenCalled();
   });
 
-  it('spawns bash for .sh scripts on non-windows', async () => {
-    const mockChild = {
-      on: vi.fn((event, cb) => {
-        if (event === 'close') cb(0); // simulate exit code 0
-      }),
-    };
-    spawn.mockReturnValue(mockChild);
+  it('executes bash for .sh scripts on non-windows', async () => {
+    execa.mockResolvedValue({ stdout: '', stderr: '', all: '' });
 
     const scriptPath = path.join(__dirname, '../scripts/tools/git.sh');
     await runScript(scriptPath, [], false);
 
-    expect(spawn).toHaveBeenCalledWith(
+    expect(execa).toHaveBeenCalledWith(
       'bash',
       [scriptPath],
-      expect.objectContaining({ stdio: 'inherit' })
+      expect.objectContaining({ all: true })
     );
   });
 
-  it('rejects if script exits with non-zero code', async () => {
-    const mockChild = {
-      on: vi.fn((event, cb) => {
-        if (event === 'close') cb(1); // simulate failure
-      }),
-    };
-    spawn.mockReturnValue(mockChild);
+  it('rejects if script throws an error', async () => {
+    execa.mockRejectedValue(Object.assign(new Error('Failed'), { exitCode: 1, all: 'Error logged' }));
+
+    // Suppress console.error in tests to keep the output clean
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     await expect(runScript('/fake/fail.sh', [], false)).rejects.toThrow(
       'Script failed with exit code 1'
     );
+    
+    consoleSpy.mockRestore();
   });
 
   it('passes extra args to bash', async () => {
-    const mockChild = {
-      on: vi.fn((event, cb) => {
-        if (event === 'close') cb(0);
-      }),
-    };
-    spawn.mockReturnValue(mockChild);
+     execa.mockResolvedValue({ stdout: '', stderr: '', all: '' });
 
     await runScript('/fake/nodejs.sh', ['asdf'], false);
 
-    expect(spawn).toHaveBeenCalledWith(
+    expect(execa).toHaveBeenCalledWith(
       'bash',
       ['/fake/nodejs.sh', 'asdf'],
-      expect.objectContaining({ stdio: 'inherit' })
+      expect.objectContaining({ all: true })
     );
   });
 });

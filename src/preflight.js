@@ -24,7 +24,7 @@ export async function preflight(args, osInfo) {
         logger.error('Do not run setupcraft as root. Run as your normal user.');
         process.exit(1);
       }
-    } catch {}
+    } catch { /* ignore */ }
   }
 
   // Check internet connectivity (async, won't hang)

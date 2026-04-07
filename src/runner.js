@@ -24,7 +24,7 @@ export async function runScript(scriptPath, args = [], dryRun = false) {
 
   try {
     // Run stealthily in the background. { all: true } captures stdout and stderr together.
-    const { all } = await execa(cmd, cmdArgs, { all: true });
+    await execa(cmd, cmdArgs, { all: true });
     
     spinner.succeed(`Successfully installed ${toolName}`);
     

@@ -7,6 +7,7 @@ const logFile = path.join(os.homedir(), `.setupcraft-${Date.now()}.log`);
 const logStream = fs.createWriteStream(logFile, { flags: 'a' });
 
 function write(msg) {
+  // eslint-disable-next-line no-control-regex
   logStream.write(msg.replace(/\x1B\[[0-9;]*m/g, '') + '\n');
 }
 
