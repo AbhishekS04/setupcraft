@@ -1,33 +1,44 @@
-import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { logger } from './logger.js';
+import { execa } from 'execa';
+import ora from 'ora';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPTS_DIR = path.join(__dirname, '..', 'scripts');
 
-export function runScript(scriptPath, args = [], dryRun = false) {
-  return new Promise((resolve, reject) => {
-    if (dryRun) {
-      logger.info(`[dry-run] Would run: ${scriptPath}`);
-      return resolve();
-    }
+export async function runScript(scriptPath, args = [], dryRun = false) {
+  const toolName = path.basename(scriptPath, path.extname(scriptPath));
+  
+  if (dryRun) {
+    logger.info(`[dry-run] Would run: ${scriptPath}`);
+    return;
+  }
 
-    const ext = path.extname(scriptPath);
-    const isWindows = process.platform === 'win32';
+  const isWindows = process.platform === 'win32';
+  const cmd  = isWindows ? 'powershell.exe' : 'bash';
+  const cmdArgs = isWindows ? ['-ExecutionPolicy', 'Bypass', '-File', scriptPath] : [scriptPath, ...args];
 
-    const cmd  = isWindows ? 'powershell.exe' : 'bash';
-    const cmdArgs = isWindows ? ['-ExecutionPolicy', 'Bypass', '-File', scriptPath] : [scriptPath, ...args];
+  // The secret to the Github CLI aesthetic: Beautiful spinners instead of raw bash vomit!
+  const spinner = ora(`Installing ${toolName}...`).start();
 
-    logger.info(`Running: ${path.basename(scriptPath)}`);
-
-    const child = spawn(cmd, cmdArgs, { stdio: 'inherit' });
-
-    child.on('close', code => {
-      if (code === 0) resolve();
-      else reject(new Error(`Script failed with exit code ${code}: ${scriptPath}`));
-    });
-  });
+  try {
+    // Run stealthily in the background. { all: true } captures stdout and stderr together.
+    const { all } = await execa(cmd, cmdArgs, { all: true });
+    
+    spinner.succeed(`Successfully installed ${toolName}`);
+    
+    // We only log the raw output to a file later, but we keep the terminal clean!
+  } catch (err) {
+    spinner.fail(`Failed to install ${toolName}`);
+    
+    // If it fails, WE SHOW the raw logs so the user can debug it
+    console.error(`\n--- ERROR LOG (${toolName}) ---`);
+    console.error(err.all || err.stderr || err.message);
+    console.error(`------------------------------\n`);
+    
+    throw new Error(`Script failed with exit code ${err.exitCode}: ${scriptPath}`);
+  }
 }
 
 export async function runInstall(selections, args, osInfo) {
